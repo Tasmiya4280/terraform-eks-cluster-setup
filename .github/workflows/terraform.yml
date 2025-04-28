@@ -4,6 +4,7 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
+  workflow_dispatch:  # Allows manual triggers
 
 jobs:
   terraform:
@@ -30,8 +31,8 @@ jobs:
     - name: Create terraform.auto.tfvars
       run: |
         echo "vpc_cidr_block = \"${{ secrets.VPC_CIDR_BLOCK }}\"" > terraform.auto.tfvars
-        echo "private_subnet_cidr_blocks = ${{ secrets.PRIVATE_SUBNET_CIDR_BLOCKS }}" >> terraform.auto.tfvars
-        echo "public_subnet_cidr_blocks = ${{ secrets.PUBLIC_SUBNET_CIDR_BLOCKS }}" >> terraform.auto.tfvars
+        echo "private_subnet_cidr_blocks = [\"${{ secrets.PRIVATE_SUBNET_CIDR_BLOCKS }}\"]" >> terraform.auto.tfvars
+        echo "public_subnet_cidr_blocks = [\"${{ secrets.PUBLIC_SUBNET_CIDR_BLOCKS }}\"]" >> terraform.auto.tfvars
 
     # Format Terraform configuration
     - name: Terraform Format
@@ -41,9 +42,9 @@ jobs:
     - name: Terraform Plan
       run: terraform plan
 
-    # Apply Terraform plan to create/update infrastructure
+    # Apply Terraform plan to create/update infrastructure (Triggered manually or on push to main)
     - name: Terraform Apply
-      if: github.event_name == 'push'  # Apply only on push to "main" branch
+      if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
       run: terraform apply -auto-approve
 
     # Configure kubectl to connect to EKS
