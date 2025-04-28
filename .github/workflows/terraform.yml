@@ -35,6 +35,7 @@ jobs:
        echo "public_subnet_cidr_blocks = [\"${{ secrets.PUBLIC_SUBNET_CIDR_BLOCKS }}\"]" >> terraform.auto.tfvars
 
 
+
     # Format Terraform configuration
     - name: Terraform Format
       run: terraform fmt 
