@@ -1,7 +1,9 @@
 name: Terraform
 
 on:
-  workflow_dispatch: # <-- allows manual trigger
+  push:
+    branches: [ "main" ]
+  pull_request:
 
 jobs:
   terraform:
