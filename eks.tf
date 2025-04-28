@@ -2,14 +2,14 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.36.0"
 
-  cluster_name = "mosque-ai-eks-cluster"
+  cluster_name    = "mosque-ai-eks-cluster"
   cluster_version = "1.30"
 
   subnet_ids = module.eks-vpc.private_subnets
-  vpc_id = module.eks-vpc.vpc_id
+  vpc_id     = module.eks-vpc.vpc_id
 
 
-  
+
 
 
 
@@ -18,7 +18,7 @@ module "eks" {
     application = "mosque-ai"
   }
 
-# using the nodegroups for the worker nodes
+  # using the nodegroups for the worker nodes
 
 
 
@@ -37,15 +37,15 @@ module "eks" {
 
 
 
-# using self managed ec3 instances( nodes )
+  # using self managed ec3 instances( nodes )
 
-#  self_managed_node_groups = {
-#   worker-group-1 = {
-#     name                 = "worker-group-1"   # Must be at least 3 characters
-#     instance_type        = "t2.micro"
-#     asg_desired_capacity = 3
-#   }
-#  }
+  #  self_managed_node_groups = {
+  #   worker-group-1 = {
+  #     name                 = "worker-group-1"   # Must be at least 3 characters
+  #     instance_type        = "t2.micro"
+  #     asg_desired_capacity = 3
+  #   }
+  #  }
 
 }
 

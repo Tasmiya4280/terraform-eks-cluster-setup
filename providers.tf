@@ -4,8 +4,8 @@ provider "aws" {
 
 
 data "aws_eks_cluster_auth" "auth" {
-  name = module.eks.cluster_name
-  depends_on = [module.eks]   # still good practice
+  name       = module.eks.cluster_name
+  depends_on = [module.eks] # still good practice
 }
 
 provider "kubernetes" {
