@@ -14,6 +14,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    # Setup Terraform and AWS credentials
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
       with:
@@ -21,21 +22,41 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
+    # Initialize Terraform working directory
     - name: Terraform Init
       run: terraform init
 
+    # Create terraform.auto.tfvars dynamically using GitHub secrets
     - name: Create terraform.auto.tfvars
       run: |
-        echo 'vpc_cidr_block = "${{ secrets.VPC_CIDR_BLOCK }}"' > terraform.auto.tfvars
-        echo 'private_subnet_cidr_blocks = ${{ secrets.PRIVATE_SUBNET_CIDR_BLOCKS }}' >> terraform.auto.tfvars
-        echo 'public_subnet_cidr_blocks = ${{ secrets.PUBLIC_SUBNET_CIDR_BLOCKS }}' >> terraform.auto.tfvars
+        echo "vpc_cidr_block = \"${{ secrets.VPC_CIDR_BLOCK }}\"" > terraform.auto.tfvars
+        echo "private_subnet_cidr_blocks = ${{ secrets.PRIVATE_SUBNET_CIDR_BLOCKS }}" >> terraform.auto.tfvars
+        echo "public_subnet_cidr_blocks = ${{ secrets.PUBLIC_SUBNET_CIDR_BLOCKS }}" >> terraform.auto.tfvars
 
+    # Format Terraform configuration
     - name: Terraform Format
       run: terraform fmt -check
 
+    # Generate an execution plan
     - name: Terraform Plan
       run: terraform plan
 
+    # Apply Terraform plan to create/update infrastructure
     - name: Terraform Apply
-      if: github.event_name == 'workflow_dispatch'
+      if: github.event_name == 'push'  # Apply only on push to "main" branch
       run: terraform apply -auto-approve
+
+    # Configure kubectl to connect to EKS
+    - name: Set up kubectl for EKS
+      run: |
+        # Install AWS CLI if not already installed
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
+
+        # Retrieve the EKS cluster credentials and configure kubectl
+        aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
+
+    # Run kubectl command (for example, checking cluster nodes)
+    - name: kubectl Get Nodes
+      run: kubectl get nodes
