@@ -57,6 +57,14 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
+      - name: Terraform Import Existing Resources
+        run: |
+         terraform import module.eks.aws_cloudwatch_log_group.this[0] /aws/eks/your-cluster-name/cluster
+         terraform import module.eks.module.kms.aws_kms_alias.this["cluster"] arn:aws:kms:us-east-1:your-account-id:alias/eks/your-alias-name
+        env:
+         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+         AWS_REGION: ${{ secrets.AWS_REGION }}
 
       # Apply Terraform plan to create/update infrastructure
       - name: Terraform Apply
